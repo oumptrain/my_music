@@ -1,0 +1,180 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="../../css/Main.css" rel="stylesheet" />
+  <link rel="shortcut icon" href="../../img/icon.png" type="image/vnd.microsoft.icon" />
+  <script src="../../js/jquery-1.10.2.min.js"></script>
+  <title>Gran Turismo</title>
+</head>
+<style>
+  #bg {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    background: url(../../img/poster61.jpg) 70% 70% no-repeat;
+    background-size: cover;
+    filter: blur(13px);
+  }
+</style>
+
+<body>
+  <div id="bg">
+    <div id="blackLayer"></div>
+  </div>
+
+  <div id="main">
+    <div id="image">
+      <img src="../../img/poster61.jpg" />
+    </div>
+
+    <div id="player">
+      <marquee behavior="alternate" scrollamount="5" direction="left" id="songTitle"><div id="songTitle"></div></marquee>
+      <div id="buttons">
+
+        <button id="pre" onclick="pre()"><img src="../../img/Pre.png" height="90%" width="90%" /></button>
+        <button id="play" onclick="playOrPauseSong()"><img src="../../img/Play.png" /></button>
+        <button id="next" onclick="next()"><img src="../../img/Next.png" height="90%" width="90%" /></button>
+      </div>
+      <div class="seekbar">
+        <div id="seek-bar">
+          <div id="fill"></div>
+          <div id="handle"></div>
+        </div>
+      </div>
+      <div id="currentTime">00:00 / 00:00</div>
+
+      <div id="volume">
+        <button id="decrease" onclick="decreaseVolume()">-</button>
+        <button id="volumeIcon" onclick="mute()"><img src="../../img/speaker.png"><img hidden
+            src="../../img/mute.png"></button>
+        <button id="increase" onclick="increaseVolume()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playlist">
+    <div id="player">
+      <a class="back_butt" onclick="history.back();">Назад</a>
+      <a class="back_butt" href="../../index.html">На главную</a>
+      <div id="songPlay">Gran Turismo
+        <p id="out_arr"></p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+<script type="text/javascript">
+  var songs = ["Do You Believe.mp3"];
+  var poster = ["../../img/poster61.jpg"];
+  var sound;
+  var position;
+  var songTitle = document.getElementById("songTitle");
+  var fillBar = document.getElementById("fill");
+  var currentTime = document.getElementById("currentTime");
+  var song = new Audio();
+  var currentSong = 0;
+  window.onload = playOrPauseSong();
+  $("#play img").attr("src", "../../img/Play.png");
+  playSong();
+  song.pause();
+
+  function playSong() {
+    song.src = songs[currentSong];
+    song.play();    // play the song 
+    songTitle.textContent = songs[currentSong].slice(0, songs[currentSong].length - 4);
+  }
+
+  function playOrPauseSong() {
+    if (song.paused) {
+      song.play();
+      $("#play img").attr("src", "../../img/Pause.png");
+    }
+    else {
+      song.pause();
+      $("#play img").attr("src", "../../img/Play.png");
+    }
+  }
+
+  song.addEventListener('timeupdate', function () {
+    position = song.currentTime / song.duration;
+    fillBar.style.width = position * 100 + '%';
+    convertTime(Math.round(song.currentTime));
+    if (song.ended) {
+      next();
+    }
+  });
+
+  function convertTime(seconds) {
+    var min = Math.floor(seconds / 60);
+    var sec = seconds % 60;
+    min = (min < 10) ? "0" + min : min;
+    sec = (sec < 10) ? "0" + sec : sec;
+    currentTime.textContent = min + ":" + sec;
+    totalTime(Math.round(song.duration));
+  }
+
+  function totalTime(seconds) {
+    var min = Math.floor(seconds / 60);
+    var sec = seconds % 60;
+    min = (min < 10) ? "0" + min + ":" : (min + ":");
+    sec = (sec < 10) ? "0" + sec : sec;
+    if (isNaN(seconds)) { min = "loading"; sec = ""; }
+    currentTime.textContent += " / " + min + sec;
+  }
+
+  function next() {
+    currentSong++;
+    if (currentSong > songs.length - 1) {
+      currentSong = 0;
+    }
+    playSong();
+    $("#play img").attr("src", "../../img/Pause.png");
+    $("#image img").attr("src", poster[currentSong]);
+    $("#bg img").attr("src", poster[currentSong]);
+  }
+
+  function pre() {
+    currentSong--;
+    if (currentSong < 0) {
+      currentSong = songs.length - 1;
+    }
+    playSong();
+    $("#play img").attr("src", "../../img/Pause.png");
+    $("#image img").attr("src", poster[currentSong]);
+    $("#bg img").attr("src", poster[currentSong]);
+  }
+
+  function decreaseVolume() {
+    song.volume -= 0.10;
+  }
+
+  function increaseVolume() {
+    song.volume += 0.10;
+  }
+
+  function mute() {
+    if (song.volume === 0) {
+      song.volume = sound;
+      $("#volumeIcon img").attr("src", "../../img/speaker.png");
+    }
+    else {
+      sound = song.volume
+      song.volume = 0;
+      $("#volumeIcon img").attr("src", "../../img/mute.png");
+    }
+  }
+
+  var out_arr = document.getElementById('out_arr');
+  var str = ' ';
+  for (var i = 0; i < songs.length; i++) {
+    if (songs[i] !== undefined) str += (i + 1) + '. ' + songs[i].slice(0, songs[i].length - 4) + '<br>';
+  }
+  out_arr.innerHTML = str;
+</script>
+
+</html>
